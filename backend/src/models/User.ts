@@ -34,6 +34,12 @@ class User extends Model<User> {
   name: string;
 
   @Column
+  cpfCnpj: string;
+
+  @Column
+  asaasId: string;
+
+  @Column
   email: string;
   
   @Column

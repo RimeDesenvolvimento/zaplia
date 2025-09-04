@@ -6,7 +6,7 @@ import BackdropLoading from "../components/BackdropLoading";
 
 const Route = ({ component: Component, isPrivate = false, ...rest }) => {
 	const { isAuth, loading } = useContext(AuthContext);
-
+const isOverdue = localStorage.getItem("isOverdue");
 	if (!isAuth && isPrivate) {
 		return (
 			<>
@@ -21,6 +21,15 @@ const Route = ({ component: Component, isPrivate = false, ...rest }) => {
 			<>
 				{loading && <BackdropLoading />}
 				<Redirect to={{ pathname: "/", state: { from: rest.location } }} />;
+			</>
+		);
+	}
+
+	if (isAuth && isOverdue === "true" && rest.path !== "/financeiro") {
+		return (
+			<>
+				{loading && <BackdropLoading />}
+				<Redirect to={{ pathname: "/financeiro" }} />
 			</>
 		);
 	}

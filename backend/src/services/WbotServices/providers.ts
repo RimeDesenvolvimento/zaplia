@@ -189,6 +189,10 @@ export const provider = async (ticket: Ticket, msg: proto.IWebMessageInfo, compa
                         const nomePDF = `Boleto-${nome}-${dia}-${mes}-${ano}.pdf`;
                         (async () => {
                           const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+                          //const browser = await puppeteer.launch({ 
+                            //args: ['--no-sandbox'],
+                            //executablePath: '/opt/chromium/chrome'
+                          //});
                           const page = await browser.newPage();
                           const website_url = `${urlmkauth}/boleto/21boleto.php?titulo=${titulo}`;
                           await page.goto(website_url, { waitUntil: 'networkidle0' });

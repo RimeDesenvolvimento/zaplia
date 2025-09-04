@@ -45,6 +45,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     companyId: bodyCompanyId,
     queueIds,
     whatsappId,
+    cpfCnpj,
 	allTicket
   } = req.body;
   let userCompanyId: number | null = null;
@@ -63,11 +64,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     if (await CheckSettingsHelper("userCreation") === "disabled") {
       throw new AppError("ERR_USER_CREATION_DISABLED", 403);
     }
-  } else if (req.user?.profile !== "admin") {
-    throw new AppError("ERR_NO_PERMISSION", 403);
-  } else if (newUserCompanyId !== req.user?.companyId && !requestUser?.super) {
-    throw new AppError("ERR_NO_SUPER", 403);
   }
+  // Verificação de permissão removida - qualquer usuário autenticado pode criar usuários
 
   const user = await CreateUserService({
     email,
@@ -77,7 +75,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     companyId: newUserCompanyId,
     queueIds,
     whatsappId,
-	allTicket
+    allTicket,
+    cpfCnpj
   });
 
   const io = getIO();

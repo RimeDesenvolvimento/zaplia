@@ -21,6 +21,11 @@ class Invoices extends Model<Invoices> {
   @Column
   detail: string;
 
+  @AllowNull(true)
+  @Unique
+  @Column
+  providerInvoiceId: string;
+
   @Column
   status: string;
 

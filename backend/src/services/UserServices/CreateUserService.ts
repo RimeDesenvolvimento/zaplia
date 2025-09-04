@@ -5,11 +5,13 @@ import { SerializeUser } from "../../helpers/SerializeUser";
 import User from "../../models/User";
 import Plan from "../../models/Plan";
 import Company from "../../models/Company";
+import { createCostumer } from "../AsaasService/CreateCustomer";
 
 interface Request {
   email: string;
   password: string;
   name: string;
+  cpfCnpj?: string;
   queueIds?: number[];
   companyId?: number;
   profile?: string;
@@ -32,7 +34,8 @@ const CreateUserService = async ({
   companyId,
   profile = "admin",
   whatsappId,
-  allTicket
+  allTicket,
+  cpfCnpj
 }: Request): Promise<Response> => {
   if (companyId !== undefined) {
     const company = await Company.findOne({
@@ -73,13 +76,33 @@ const CreateUserService = async ({
           return !emailExists;
         }
       ),
-    password: Yup.string().required().min(5)
+    password: Yup.string().required().min(5),
+    cpfCnpj: Yup.string().optional(),
+
   });
 
   try {
-    await schema.validate({ email, password, name });
+    await schema.validate({ email, password, name, cpfCnpj });
   } catch (err) {
     throw new AppError(err.message);
+  }
+
+  let asaasCustomerId = null;
+
+  if (cpfCnpj) {
+    try {
+      const response = await createCostumer({
+        name,
+        cpfCnpj: cpfCnpj
+      });
+      
+      if (response && response.id) {
+        asaasCustomerId = response.id;
+        console.log("Customer created successfully:", response);
+      }
+    } catch (error) {
+      console.error("Error creating customer:", error);
+    }
   }
 
   const user = await User.create(
@@ -90,6 +113,8 @@ const CreateUserService = async ({
       companyId,
       profile,
       whatsappId: whatsappId || null,
+      cpfCnpj,
+      asaasId: asaasCustomerId,
 	  allTicket
     },
     { include: ["queues", "company"] }

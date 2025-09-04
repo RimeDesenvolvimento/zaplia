@@ -16,6 +16,8 @@ import { verify } from "jsonwebtoken";
 import User from "../models/User";
 import ShowPlanCompanyService from "../services/CompanyService/ShowPlanCompanyService";
 import ListCompaniesPlanService from "../services/CompanyService/ListCompaniesPlanService";
+import UpdatePlanService from "../services/PlanService/UpdatePlanService";
+import { UpdateCompanyPlanService } from "../services/CompanyService/UpdateCompanyPlanService";
 
 type IndexQuery = {
   searchParam: string;
@@ -42,6 +44,8 @@ type CompanyData = {
   dueDate?: string;
   recurrence?: string;
   password: string;
+  cpfCnpj?: string;
+  partnerToken?: string;
 };
 
 type SchedulesData = {
@@ -63,7 +67,10 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   const newCompany: CompanyData = req.body;
 
   const schema = Yup.object().shape({
-    name: Yup.string().required()
+    name: Yup.string().required(),
+    cpfCnpj: Yup.string()
+      .matches(/^\d{11}$|^\d{14}$/, "CPF/CNPJ inválido") // 11 ou 14 dígitos
+      .required("CPF/CNPJ obrigatório")
   });
 
   try {
@@ -71,6 +78,13 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   } catch (err: any) {
     throw new AppError(err.message);
   }
+
+  newCompany.planId = 13;
+  newCompany.recurrence = "MENSAL";
+  const today = new Date();
+  const threeDaysLater = new Date(today);
+  threeDaysLater.setDate(today.getDate() + 3);
+  newCompany.dueDate = threeDaysLater.toISOString();
 
   const company = await CreateCompanyService(newCompany);
 
@@ -114,6 +128,20 @@ export const update = async (
   return res.status(200).json(company);
 };
 
+export const updatePlan = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  const { newPlanId, recurrence, dueDate, campaignsEnabled } = req.body;
+  const { id } = req.params;
+
+  await UpdateCompanyPlanService(Number(id), {
+    newPlanId
+  });
+
+  return res.status(200).json({ message: "Plano atualizado com sucesso" });
+};
+
 export const updateSchedules = async (
   req: Request,
   res: Response
@@ -140,7 +168,10 @@ export const remove = async (
   return res.status(200).json(company);
 };
 
-export const listPlan = async (req: Request, res: Response): Promise<Response> => {
+export const listPlan = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   const { id } = req.params;
 
   const authHeader = req.headers.authorization;
@@ -153,15 +184,19 @@ export const listPlan = async (req: Request, res: Response): Promise<Response> =
     const company = await ShowPlanCompanyService(id);
     return res.status(200).json(company);
   } else if (companyId.toString() !== id) {
-    return res.status(400).json({ error: "Você não possui permissão para acessar este recurso!" });
+    return res
+      .status(400)
+      .json({ error: "Você não possui permissão para acessar este recurso!" });
   } else {
     const company = await ShowPlanCompanyService(id);
     return res.status(200).json(company);
   }
-
 };
 
-export const indexPlan = async (req: Request, res: Response): Promise<Response> => {
+export const indexPlan = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   const { searchParam, pageNumber } = req.query as IndexQuery;
 
   const authHeader = req.headers.authorization;
@@ -175,7 +210,8 @@ export const indexPlan = async (req: Request, res: Response): Promise<Response> 
     const companies = await ListCompaniesPlanService();
     return res.json({ companies });
   } else {
-    return res.status(400).json({ error: "Você não possui permissão para acessar este recurso!" });
+    return res
+      .status(400)
+      .json({ error: "Você não possui permissão para acessar este recurso!" });
   }
-
 };

@@ -9,12 +9,14 @@ import {
   ForeignKey,
   BelongsTo,
   DataType,
-  HasMany
+  HasMany,
+  Default
 } from "sequelize-typescript";
 import Contact from "./Contact";
 import Message from "./Message";
 
 import Plan from "./Plan";
+import Partner from "./Partner";
 import Queue from "./Queue";
 import Setting from "./Setting";
 import Ticket from "./Ticket";
@@ -32,6 +34,12 @@ class Company extends Model<Company> {
 
   @Column
   name: string;
+
+  @Column({ defaultValue: "" })
+  cpfCnpj: string;
+
+  @Column({ defaultValue: "" })
+  asaasId: string;
 
   @Column
   phone: string;
@@ -62,6 +70,13 @@ class Company extends Model<Company> {
 
   @BelongsTo(() => Plan)
   plan: Plan;
+
+  @ForeignKey(() => Partner)
+  @Column
+  partnerId: number;
+
+  @BelongsTo(() => Partner)
+  partner: Partner;
 
   @CreatedAt
   createdAt: Date;
