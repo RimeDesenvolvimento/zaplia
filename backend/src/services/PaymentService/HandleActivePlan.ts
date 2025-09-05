@@ -79,12 +79,15 @@ export async function handleActivePlan(
   company.dueDate = expiresAt.toISOString();
   await company.save();
 
-  const baseDueDate = invoice && invoice.dueDate ? new Date(invoice.dueDate) : new Date();
-  const nextDueDate = new Date(baseDueDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const baseDueDate =
+    invoice && invoice.dueDate ? new Date(invoice.dueDate) : new Date();
+  const nextDueDate = new Date(
+    baseDueDate.getTime() + 30 * 24 * 60 * 60 * 1000
+  );
 
   await Invoices.create({
     companyId: company.id,
-    providerInvoiceId: null, 
+    providerInvoiceId: null,
     value,
     dueDate: nextDueDate.toISOString(),
     status: "open",

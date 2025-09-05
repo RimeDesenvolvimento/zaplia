@@ -70,7 +70,7 @@ class CreatePlanPaymentWithPix {
       console.log("🔄 Atualizando fatura existente ID:", existingInvoice.id);
 
       await existingInvoice.update({
-        providerInvoiceId: id,
+        providerInvoiceId: id
       });
     } else {
       console.log(
@@ -114,6 +114,11 @@ class CreatePlanPaymentWithPix {
     //   .catch((err) => {
     //     console.error("[ERROR_CREATE_LOG]", err);
     //   });
+
+    console.log("data: ", {
+      payload,
+      idFromAsaas: id
+    });
 
     return {
       payload,

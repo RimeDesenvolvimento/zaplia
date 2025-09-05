@@ -109,6 +109,7 @@ const Invoices = () => {
   const [availablePlans, setAvailablePlans] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState('');
   const [plansLoading, setPlansLoading] = useState(false);
+  const [isUpdatingPlan, setIsUpdatingPlan] = useState(false);
 
   const isOverdue = localStorage.getItem('isOverdue') === 'true';
 
@@ -135,6 +136,8 @@ const Invoices = () => {
           const { data } = await api.get('/invoices/all', {
             params: { searchParam, pageNumber },
           });
+
+          console.log('data: ', data);
 
           dispatch({
             type: 'LOAD_INVOICES',
@@ -182,7 +185,7 @@ const Invoices = () => {
     );
     var dias = moment.duration(diff).asDays();
     const status = record.status;
-    if (status === 'paid') {
+    if (status.toLowerCase() === 'paid') {
       return i18n.t('invoices.paid');
     }
     if (dias < 0) {
@@ -196,7 +199,9 @@ const Invoices = () => {
     setPlansLoading(true);
     try {
       const { data } = await api.get('/plans/list');
-      setAvailablePlans(data);
+
+      console.log('data:?', data);
+      setAvailablePlans(data.filter(plan => plan.value > 0));
     } catch (err) {
       toastError(err);
     } finally {
@@ -206,6 +211,7 @@ const Invoices = () => {
 
   const handleUpdatePlan = async planId => {
     try {
+      setIsUpdatingPlan(true);
       const companyId = localStorage.getItem('companyId');
 
       await api.put(`/companies/${companyId}/plan`, {
@@ -233,15 +239,18 @@ const Invoices = () => {
       }
     } catch (err) {
       console.log('erro ao atualizar plano: ', err);
+      window.location.reload();
       toastError(err);
+    } finally {
+      setIsUpdatingPlan(false);
     }
   };
 
   useEffect(() => {
-    if (isOverdue) {
+    if (isOverdue || invoices.length === 0) {
       fetchAvailablePlans();
     }
-  }, [isOverdue]);
+  }, [isOverdue, invoices.length]);
 
   if (loading)
     return (
@@ -255,7 +264,7 @@ const Invoices = () => {
       </MainContainer>
     );
 
-  if (isOverdue && invoices.length === 0) {
+  if (invoices.length === 0) {
     return (
       <MainContainer>
         <MainHeader>
@@ -264,10 +273,14 @@ const Invoices = () => {
         <Paper className={classes.mainPaper} variant="outlined">
           <Box className={classes.planSelectionContainer}>
             <Typography variant="h5" color="error" gutterBottom>
-              {} O seu plano gratuito expirou!
+              {isOverdue
+                ? 'O seu plano gratuito expirou!'
+                : 'Você está no plano gratuito.'}
             </Typography>
             <Typography variant="body1" color="textSecondary" gutterBottom>
-              Para continuar usando nossos serviços, selecione um plano abaixo:
+              {isOverdue
+                ? 'Para continuar usando nossos serviços, selecione um plano abaixo:'
+                : 'Selecione um dos nossos planos para obter mais vantagens!'}
             </Typography>
 
             <FormControl className={classes.planSelect}>
@@ -295,17 +308,18 @@ const Invoices = () => {
               variant="contained"
               color="primary"
               className={classes.payButton}
-              disabled={!selectedPlan || plansLoading}
+              disabled={!selectedPlan || plansLoading || isUpdatingPlan}
               onClick={() => handleUpdatePlan(selectedPlan)}
             >
-              Pagar Plano
+              {plansLoading || isUpdatingPlan
+                ? 'Carregando...'
+                : 'Assinar Plano'}
             </Button>
           </Box>
         </Paper>
       </MainContainer>
     );
   }
-
   return (
     <MainContainer>
       <SubscriptionModal
