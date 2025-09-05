@@ -4,7 +4,7 @@ export const AsaasApiInstance = axios.create({
     baseURL: 'https://api.asaas.com/v3/',
     
 })
-AsaasApiInstance.defaults.headers.common["access_token"] = '$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmNlYWMxYTczLWE0ZTEtNGRhZi1iMTI3LWIzNjJjZjA0M2QxOTo6JGFhY2hfNTJjOTljY2EtODAxMS00MDM0LTljOGQtYjI0NTI3MmE5ZDM0'
+AsaasApiInstance.defaults.headers.common["access_token"] = '$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OjJlMDI0ZjRkLTgxYzYtNGY4MS1iMjY2LThhZDcxM2Q5Y2RkYTo6JGFhY2hfMGQwNGY3OGItMmUxMC00MDdkLWI3YjEtNWYyZGVjNGNjYTgz'
 AsaasApiInstance.defaults.headers.common["User-Agent"]    = "zaplia/1.0";
 AsaasApiInstance.defaults.headers.common["Content-Type"]  = "application/json";
 
