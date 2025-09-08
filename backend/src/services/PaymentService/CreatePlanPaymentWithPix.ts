@@ -27,11 +27,13 @@ class CreatePlanPaymentWithPix {
 
     let splits: Split[] = [];
 
+    console.log("partner: ", partner.walletId);
+
     if (partner && partner.walletId) {
       splits = [
         {
           walletId: partner.walletId,
-          percentualValue: 40
+          percentualValue: partner.porcentagemComissao
         }
       ];
     }

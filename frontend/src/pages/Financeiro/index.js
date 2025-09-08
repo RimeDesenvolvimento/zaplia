@@ -110,6 +110,7 @@ const Invoices = () => {
   const [selectedPlan, setSelectedPlan] = useState('');
   const [plansLoading, setPlansLoading] = useState(false);
   const [isUpdatingPlan, setIsUpdatingPlan] = useState(false);
+  const [isCheckingOverdue, setIsCheckingOverdue] = useState(false);
 
   const isOverdue = localStorage.getItem('isOverdue') === 'true';
 
@@ -129,7 +130,12 @@ const Invoices = () => {
   }, [searchParam]);
 
   useEffect(async () => {
+    await checkIsOverdue();
+  }, []);
+
+  const checkIsOverdue = async () => {
     try {
+      setIsCheckingOverdue(true);
       const isOverdue = localStorage.getItem('isOverdue') === 'true';
       if (!isOverdue) return;
 
@@ -143,8 +149,10 @@ const Invoices = () => {
       }
     } catch (error) {
       console.error('Erro ao verificar vencimento do plano:', error);
+    } finally {
+      setIsCheckingOverdue(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -345,7 +353,23 @@ const Invoices = () => {
         contactId={selectedContactId}
       ></SubscriptionModal>
       <MainHeader>
-        <Title>{i18n.t('invoices.title')}</Title>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          width="100%"
+        >
+          <Title>{i18n.t('invoices.title')}</Title>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={async () => await checkIsOverdue()}
+            disabled={isCheckingOverdue}
+          >
+            {isCheckingOverdue ? 'Verificando...' : 'Verificar Pagamento'}
+          </Button>
+        </Box>
       </MainHeader>
       <Paper
         className={classes.mainPaper}
