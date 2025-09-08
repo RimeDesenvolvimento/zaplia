@@ -18,7 +18,7 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
       include: [
         {
           model: Company,
-          as: "companies",
+          as: "companies"
         }
       ]
     });
@@ -31,13 +31,7 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const {
-      nome,
-      email,
-      cpfCpnj,
-      urlParceiro,
-      telefone
-    } = req.body;
+    const { nome, email, cpfCpnj, urlParceiro, telefone, walletId } = req.body;
 
     // Hashear a senha padrão
     const passwordHash = await hash("123456parceirozaplia", 8);
@@ -50,7 +44,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
       telefone,
       status: "Sim", // Status padrão
       password: passwordHash, // Senha hasheada
-      criadoEm: new Date()
+      criadoEm: new Date(),
+      walletId
     });
 
     return res.status(201).json(partner);
@@ -62,7 +57,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 export const show = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { id } = req.params;
-    
+
     const partner = await Partner.findByPk(id, {
       include: [
         {
@@ -83,16 +78,13 @@ export const show = async (req: Request, res: Response): Promise<Response> => {
   }
 };
 
-export const update = async (req: Request, res: Response): Promise<Response> => {
+export const update = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
     const { id } = req.params;
-    const {
-      nome,
-      email,
-      cpfCpnj,
-      urlParceiro,
-      telefone
-    } = req.body;
+    const { nome, email, cpfCpnj, urlParceiro, telefone } = req.body;
 
     const partner = await Partner.findByPk(id);
 
@@ -114,7 +106,10 @@ export const update = async (req: Request, res: Response): Promise<Response> => 
   }
 };
 
-export const remove = async (req: Request, res: Response): Promise<Response> => {
+export const remove = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
     const { id } = req.params;
 
@@ -132,7 +127,10 @@ export const remove = async (req: Request, res: Response): Promise<Response> => 
   }
 };
 
-export const associateCompany = async (req: Request, res: Response): Promise<Response> => {
+export const associateCompany = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
     const { partnerId, companyId } = req.body;
 
@@ -150,11 +148,16 @@ export const associateCompany = async (req: Request, res: Response): Promise<Res
 
     return res.json({ message: "Empresa associada ao parceiro com sucesso" });
   } catch (error) {
-    return res.status(400).json({ error: "Erro ao associar empresa ao parceiro" });
+    return res
+      .status(400)
+      .json({ error: "Erro ao associar empresa ao parceiro" });
   }
 };
 
-export const disassociateCompany = async (req: Request, res: Response): Promise<Response> => {
+export const disassociateCompany = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
     const { companyId } = req.params;
 
@@ -165,9 +168,13 @@ export const disassociateCompany = async (req: Request, res: Response): Promise<
 
     await company.update({ partnerId: null });
 
-    return res.json({ message: "Empresa desassociada do parceiro com sucesso" });
+    return res.json({
+      message: "Empresa desassociada do parceiro com sucesso"
+    });
   } catch (error) {
-    return res.status(400).json({ error: "Erro ao desassociar empresa do parceiro" });
+    return res
+      .status(400)
+      .json({ error: "Erro ao desassociar empresa do parceiro" });
   }
 };
 
@@ -269,13 +276,18 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
   }
 };
 
-export const changePassword = async (req: Request, res: Response): Promise<Response> => {
+export const changePassword = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
     const { id } = req.params;
     const { currentPassword, newPassword } = req.body;
 
     if (!currentPassword || !newPassword) {
-      return res.status(400).json({ error: "Senha atual e nova senha são obrigatórias" });
+      return res
+        .status(400)
+        .json({ error: "Senha atual e nova senha são obrigatórias" });
     }
 
     const partner = await Partner.findByPk(id);
@@ -284,7 +296,10 @@ export const changePassword = async (req: Request, res: Response): Promise<Respo
     }
 
     // Verificar senha atual
-    const isCurrentPasswordValid = await compare(currentPassword, partner.password);
+    const isCurrentPasswordValid = await compare(
+      currentPassword,
+      partner.password
+    );
     if (!isCurrentPasswordValid) {
       return res.status(401).json({ error: "Senha atual incorreta" });
     }
@@ -301,7 +316,10 @@ export const changePassword = async (req: Request, res: Response): Promise<Respo
   }
 };
 
-export const getMyCompanies = async (req: Request, res: Response): Promise<Response> => {
+export const getMyCompanies = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
     // Extrair informações do token JWT
     const { id: partnerId } = req.user as any;
@@ -316,11 +334,11 @@ export const getMyCompanies = async (req: Request, res: Response): Promise<Respo
     const companies = await Company.findAll({
       where: { partnerId },
       attributes: [
-        "id", 
-        "name", 
-        "email", 
-        "phone", 
-        "status", 
+        "id",
+        "name",
+        "email",
+        "phone",
+        "status",
         "cpfCnpj",
         "dueDate",
         "createdAt"
@@ -356,32 +374,45 @@ export const getMyCompanies = async (req: Request, res: Response): Promise<Respo
       const now = new Date();
       const createdAt = new Date(company.createdAt);
       const dueDate = new Date(company.dueDate);
-      
+
       // Calcular métricas de tempo
-      const daysSinceCreation = Math.ceil((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
-      const daysUntilExpiry = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      const daysSinceCreation = Math.ceil(
+        (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      const daysUntilExpiry = Math.ceil(
+        (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      );
       const isExpired = dueDate < now;
-      
+
       // Nova lógica baseada em faturas:
       // Se a empresa tem pelo menos uma fatura PAGA, é considerada subscribed
       // Se tem apenas faturas ABERTAS (open), verifica se a primeira fatura ainda está em trial (3 dias)
       // Se não tem faturas, é trial (mas apenas se ainda está dentro do período trial e não expirou)
       const companyInvoices = invoicesByCompany[company.id] || [];
-      const paidInvoices = companyInvoices.filter(invoice => invoice.status === "PAID");
-      const openInvoices = companyInvoices.filter(invoice => invoice.status === "open");
-      
+      const paidInvoices = companyInvoices.filter(
+        invoice => invoice.status === "PAID"
+      );
+      const openInvoices = companyInvoices.filter(
+        invoice => invoice.status === "open"
+      );
+
       let isTrial = false;
       let isSubscribed = false;
-      
+
       if (paidInvoices.length > 0) {
         // Empresa tem faturas pagas, logo é subscribed
         isSubscribed = true;
       } else if (openInvoices.length > 0) {
         // Empresa tem apenas faturas abertas, verificar se a primeira ainda está em trial
-        const firstOpenInvoice = openInvoices.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[0];
+        const firstOpenInvoice = openInvoices.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )[0];
         const invoiceCreatedAt = new Date(firstOpenInvoice.createdAt);
-        const daysSinceFirstInvoice = Math.ceil((now.getTime() - invoiceCreatedAt.getTime()) / (1000 * 60 * 60 * 24));
-        
+        const daysSinceFirstInvoice = Math.ceil(
+          (now.getTime() - invoiceCreatedAt.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
         if (daysSinceFirstInvoice <= 3) {
           // Primeira fatura open ainda está dentro de 3 dias
           isTrial = true;
@@ -397,7 +428,7 @@ export const getMyCompanies = async (req: Request, res: Response): Promise<Respo
         }
         // Se expirou ou passou do período trial sem faturas, não é nem trial nem subscribed
       }
-      
+
       // Status do plano
       const planStatus = {
         isTrial,
@@ -430,7 +461,10 @@ export const getMyCompanies = async (req: Request, res: Response): Promise<Respo
   }
 };
 
-export const getMyCompaniesStats = async (req: Request, res: Response): Promise<Response> => {
+export const getMyCompaniesStats = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
     // Extrair informações do token JWT
     const { id: partnerId } = req.user as any;
@@ -478,32 +512,43 @@ export const getMyCompaniesStats = async (req: Request, res: Response): Promise<
 
     companies.forEach(company => {
       totalValue += company.plan?.value || 0;
-      
+
       const now = new Date();
       const createdAt = new Date(company.createdAt);
       const dueDate = new Date(company.dueDate);
-      
+
       // Calcular métricas de tempo
-      const daysSinceCreation = Math.ceil((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+      const daysSinceCreation = Math.ceil(
+        (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
+      );
       const isExpired = dueDate < now;
-      
+
       // Nova lógica baseada em faturas (mesma do getMyCompanies)
       const companyInvoices = invoicesByCompany[company.id] || [];
-      const paidInvoices = companyInvoices.filter(invoice => invoice.status === "PAID");
-      const openInvoices = companyInvoices.filter(invoice => invoice.status === "open");
-      
+      const paidInvoices = companyInvoices.filter(
+        invoice => invoice.status === "PAID"
+      );
+      const openInvoices = companyInvoices.filter(
+        invoice => invoice.status === "open"
+      );
+
       let isTrial = false;
       let isSubscribed = false;
-      
+
       if (paidInvoices.length > 0) {
         // Empresa tem faturas pagas, logo é subscribed
         isSubscribed = true;
       } else if (openInvoices.length > 0) {
         // Empresa tem apenas faturas abertas, verificar se a primeira ainda está em trial
-        const firstOpenInvoice = openInvoices.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[0];
+        const firstOpenInvoice = openInvoices.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )[0];
         const invoiceCreatedAt = new Date(firstOpenInvoice.createdAt);
-        const daysSinceFirstInvoice = Math.ceil((now.getTime() - invoiceCreatedAt.getTime()) / (1000 * 60 * 60 * 24));
-        
+        const daysSinceFirstInvoice = Math.ceil(
+          (now.getTime() - invoiceCreatedAt.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
         if (daysSinceFirstInvoice <= 3) {
           // Primeira fatura open ainda está dentro de 3 dias
           isTrial = true;
@@ -519,7 +564,7 @@ export const getMyCompaniesStats = async (req: Request, res: Response): Promise<
         }
         // Se expirou ou passou do período trial sem faturas, não é nem trial nem subscribed
       }
-      
+
       if (isExpired && paidInvoices.length === 0) {
         expiredCount++;
       } else if (isTrial) {
@@ -536,8 +581,10 @@ export const getMyCompaniesStats = async (req: Request, res: Response): Promise<
       thisMonth: companies.filter(c => {
         const companyDate = new Date(c.createdAt);
         const now = new Date();
-        return companyDate.getMonth() === now.getMonth() && 
-               companyDate.getFullYear() === now.getFullYear();
+        return (
+          companyDate.getMonth() === now.getMonth() &&
+          companyDate.getFullYear() === now.getFullYear()
+        );
       }).length,
       totalValue: totalValue,
       averageValue: companies.length > 0 ? totalValue / companies.length : 0,
@@ -559,7 +606,10 @@ export const getMyCompaniesStats = async (req: Request, res: Response): Promise<
   }
 };
 
-export const getAllReferredCompanies = async (req: Request, res: Response): Promise<Response> => {
+export const getAllReferredCompanies = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
     const { page = 1, limit = 10, search = "" } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
@@ -573,8 +623,12 @@ export const getAllReferredCompanies = async (req: Request, res: Response): Prom
       whereCondition[require("sequelize").Op.or] = [
         { name: { [require("sequelize").Op.iLike]: `%${search}%` } },
         { email: { [require("sequelize").Op.iLike]: `%${search}%` } },
-        { "$partner.nome$": { [require("sequelize").Op.iLike]: `%${search}%` } },
-        { "$partner.email$": { [require("sequelize").Op.iLike]: `%${search}%` } }
+        {
+          "$partner.nome$": { [require("sequelize").Op.iLike]: `%${search}%` }
+        },
+        {
+          "$partner.email$": { [require("sequelize").Op.iLike]: `%${search}%` }
+        }
       ];
     }
 
@@ -582,11 +636,11 @@ export const getAllReferredCompanies = async (req: Request, res: Response): Prom
     const { count, rows: companies } = await Company.findAndCountAll({
       where: whereCondition,
       attributes: [
-        "id", 
-        "name", 
-        "email", 
-        "phone", 
-        "status", 
+        "id",
+        "name",
+        "email",
+        "phone",
+        "status",
         "cpfCnpj",
         "dueDate",
         "createdAt"
@@ -631,29 +685,42 @@ export const getAllReferredCompanies = async (req: Request, res: Response): Prom
       const now = new Date();
       const createdAt = new Date(company.createdAt);
       const dueDate = new Date(company.dueDate);
-      
+
       // Calcular métricas de tempo
-      const daysSinceCreation = Math.ceil((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
-      const daysUntilExpiry = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      const daysSinceCreation = Math.ceil(
+        (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      const daysUntilExpiry = Math.ceil(
+        (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      );
       const isExpired = dueDate < now;
-      
+
       // Mesma lógica de trial/subscribed do getMyCompanies
       const companyInvoices = invoicesByCompany[company.id] || [];
-      const paidInvoices = companyInvoices.filter(invoice => invoice.status === "PAID");
-      const openInvoices = companyInvoices.filter(invoice => invoice.status === "open");
-      
+      const paidInvoices = companyInvoices.filter(
+        invoice => invoice.status === "PAID"
+      );
+      const openInvoices = companyInvoices.filter(
+        invoice => invoice.status === "open"
+      );
+
       let isTrial = false;
       let isSubscribed = false;
       let planStatus = "expired";
-      
+
       if (paidInvoices.length > 0) {
         isSubscribed = true;
         planStatus = "subscribed";
       } else if (openInvoices.length > 0) {
-        const firstOpenInvoice = openInvoices.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[0];
+        const firstOpenInvoice = openInvoices.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )[0];
         const invoiceCreatedAt = new Date(firstOpenInvoice.createdAt);
-        const daysSinceFirstInvoice = Math.ceil((now.getTime() - invoiceCreatedAt.getTime()) / (1000 * 60 * 60 * 24));
-        
+        const daysSinceFirstInvoice = Math.ceil(
+          (now.getTime() - invoiceCreatedAt.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
         if (daysSinceFirstInvoice <= 3) {
           isTrial = true;
           planStatus = "trial";
@@ -707,11 +774,17 @@ export const getAllReferredCompanies = async (req: Request, res: Response): Prom
     const stats = {
       total: count,
       trial: companiesWithDetails.filter(c => c.planStatus.isTrial).length,
-      subscribed: companiesWithDetails.filter(c => c.planStatus.isSubscribed).length,
-      expired: companiesWithDetails.filter(c => c.planStatus.status === "expired").length,
+      subscribed: companiesWithDetails.filter(c => c.planStatus.isSubscribed)
+        .length,
+      expired: companiesWithDetails.filter(
+        c => c.planStatus.status === "expired"
+      ).length,
       active: companiesWithDetails.filter(c => c.status === "ativo").length,
       inactive: companiesWithDetails.filter(c => c.status === "inativo").length,
-      totalValue: companiesWithDetails.reduce((sum, c) => sum + (c.plan?.value || 0), 0)
+      totalValue: companiesWithDetails.reduce(
+        (sum, c) => sum + (c.plan?.value || 0),
+        0
+      )
     };
 
     return res.json({
@@ -730,15 +803,18 @@ export const getAllReferredCompanies = async (req: Request, res: Response): Prom
   }
 };
 
-export const getMyFinancials = async (req: Request, res: Response): Promise<Response> => {
+export const getMyFinancials = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
     const partnerId = req.user.id;
-    const { 
-      page = 1, 
-      limit = 10, 
-      search = "", 
-      month, 
-      year, 
+    const {
+      page = 1,
+      limit = 10,
+      search = "",
+      month,
+      year,
       status // "paid", "pending", "expired", "all"
     } = req.query;
 
@@ -750,8 +826,8 @@ export const getMyFinancials = async (req: Request, res: Response): Promise<Resp
     };
 
     if (search) {
-      companyWhereCondition.name = { 
-        [require("sequelize").Op.iLike]: `%${search}%` 
+      companyWhereCondition.name = {
+        [require("sequelize").Op.iLike]: `%${search}%`
       };
     }
 
@@ -806,14 +882,14 @@ export const getMyFinancials = async (req: Request, res: Response): Promise<Resp
     if (month && year) {
       const startDate = new Date(Number(year), Number(month) - 1, 1);
       const endDate = new Date(Number(year), Number(month), 0, 23, 59, 59);
-      
+
       invoiceWhereCondition.dueDate = {
         [require("sequelize").Op.between]: [startDate, endDate]
       };
     } else if (year) {
       const startDate = new Date(Number(year), 0, 1);
       const endDate = new Date(Number(year), 11, 31, 23, 59, 59);
-      
+
       invoiceWhereCondition.dueDate = {
         [require("sequelize").Op.between]: [startDate, endDate]
       };
@@ -839,7 +915,15 @@ export const getMyFinancials = async (req: Request, res: Response): Promise<Resp
     // Buscar todas as faturas das empresas do parceiro
     const { count, rows: allInvoices } = await Invoices.findAndCountAll({
       where: invoiceWhereCondition,
-      attributes: ["id", "status", "value", "dueDate", "createdAt", "detail", "companyId"],
+      attributes: [
+        "id",
+        "status",
+        "value",
+        "dueDate",
+        "createdAt",
+        "detail",
+        "companyId"
+      ],
       order: [["createdAt", "DESC"]],
       limit: Number(limit),
       offset
@@ -872,7 +956,7 @@ export const getMyFinancials = async (req: Request, res: Response): Promise<Resp
       const company = companiesMap[invoice.companyId];
       const dueDate = new Date(invoice.dueDate);
       const isExpired = dueDate < now && invoice.status === "open";
-      
+
       let invoiceStatus = "pending";
       if (invoice.status === "PAID") {
         invoiceStatus = "paid";
@@ -891,7 +975,9 @@ export const getMyFinancials = async (req: Request, res: Response): Promise<Resp
         createdAt: invoice.createdAt,
         status: invoiceStatus,
         detail: invoice.detail,
-        daysUntilDue: Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
+        daysUntilDue: Math.ceil(
+          (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+        ),
         company: {
           id: company?.id,
           name: company?.name,
@@ -908,8 +994,12 @@ export const getMyFinancials = async (req: Request, res: Response): Promise<Resp
 
     // Estatísticas por status
     const paidCount = invoicesData.filter(inv => inv.status === "paid").length;
-    const pendingCount = invoicesData.filter(inv => inv.status === "pending").length;
-    const expiredCount = invoicesData.filter(inv => inv.status === "expired").length;
+    const pendingCount = invoicesData.filter(
+      inv => inv.status === "pending"
+    ).length;
+    const expiredCount = invoicesData.filter(
+      inv => inv.status === "expired"
+    ).length;
 
     const financialSummary = {
       totalReceived: Number(totalReceived.toFixed(2)),
@@ -918,9 +1008,17 @@ export const getMyFinancials = async (req: Request, res: Response): Promise<Resp
       paidInvoices: paidCount,
       pendingInvoices: pendingCount,
       expiredInvoices: expiredCount,
-      averageInvoiceValue: totalInvoices.length > 0 
-        ? Number((totalInvoices.reduce((sum, inv) => sum + parseFloat(inv.value.toString()), 0) / totalInvoices.length).toFixed(2))
-        : 0
+      averageInvoiceValue:
+        totalInvoices.length > 0
+          ? Number(
+              (
+                totalInvoices.reduce(
+                  (sum, inv) => sum + parseFloat(inv.value.toString()),
+                  0
+                ) / totalInvoices.length
+              ).toFixed(2)
+            )
+          : 0
     };
 
     return res.json({
@@ -944,7 +1042,10 @@ export const getMyFinancials = async (req: Request, res: Response): Promise<Resp
     return res.status(500).json({ error: "Erro interno do servidor" });
   }
 };
-export const getAllFinancials = async (req: Request, res: Response): Promise<Response> => {
+export const getAllFinancials = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
     const {
       page = 1,
@@ -981,7 +1082,9 @@ export const getAllFinancials = async (req: Request, res: Response): Promise<Res
         });
         const partnerIds = partners.map(p => p.id);
         if (partnerIds.length > 0) {
-          companyWhereCondition.partnerId = { [require("sequelize").Op.in]: partnerIds };
+          companyWhereCondition.partnerId = {
+            [require("sequelize").Op.in]: partnerIds
+          };
         } else {
           // Nenhum parceiro encontrado, retorna vazio
           return res.json({
@@ -1097,7 +1200,15 @@ export const getAllFinancials = async (req: Request, res: Response): Promise<Res
     // Buscar todas as faturas das empresas
     const { count, rows: allInvoices } = await Invoices.findAndCountAll({
       where: invoiceWhereCondition,
-      attributes: ["id", "status", "value", "dueDate", "createdAt", "detail", "companyId"],
+      attributes: [
+        "id",
+        "status",
+        "value",
+        "dueDate",
+        "createdAt",
+        "detail",
+        "companyId"
+      ],
       order: [["createdAt", "DESC"]],
       limit: Number(limit),
       offset
@@ -1139,11 +1250,13 @@ export const getAllFinancials = async (req: Request, res: Response): Promise<Res
         id: invoice.id,
         companyName: company?.name || "Empresa não encontrada",
         companyEmail: company?.email || "",
-        partner: company?.partner ? {
-          id: company.partner.id,
-          nome: company.partner.nome,
-          email: company.partner.email
-        } : null,
+        partner: company?.partner
+          ? {
+              id: company.partner.id,
+              nome: company.partner.nome,
+              email: company.partner.email
+            }
+          : null,
         planName: company?.plan?.name || "Sem plano",
         planValue: company?.plan?.value || 0,
         invoiceValue: parseFloat(invoice.value.toString()),
@@ -1151,7 +1264,9 @@ export const getAllFinancials = async (req: Request, res: Response): Promise<Res
         createdAt: invoice.createdAt,
         status: invoiceStatus,
         detail: invoice.detail,
-        daysUntilDue: Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
+        daysUntilDue: Math.ceil(
+          (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+        ),
         company: {
           id: company?.id,
           name: company?.name,
@@ -1168,8 +1283,12 @@ export const getAllFinancials = async (req: Request, res: Response): Promise<Res
 
     // Estatísticas por status
     const paidCount = invoicesData.filter(inv => inv.status === "paid").length;
-    const pendingCount = invoicesData.filter(inv => inv.status === "pending").length;
-    const expiredCount = invoicesData.filter(inv => inv.status === "expired").length;
+    const pendingCount = invoicesData.filter(
+      inv => inv.status === "pending"
+    ).length;
+    const expiredCount = invoicesData.filter(
+      inv => inv.status === "expired"
+    ).length;
 
     const financialSummary = {
       totalReceived: Number(totalReceived.toFixed(2)),
@@ -1178,9 +1297,17 @@ export const getAllFinancials = async (req: Request, res: Response): Promise<Res
       paidInvoices: paidCount,
       pendingInvoices: pendingCount,
       expiredInvoices: expiredCount,
-      averageInvoiceValue: totalInvoices.length > 0 
-        ? Number((totalInvoices.reduce((sum, inv) => sum + parseFloat(inv.value.toString()), 0) / totalInvoices.length).toFixed(2))
-        : 0
+      averageInvoiceValue:
+        totalInvoices.length > 0
+          ? Number(
+              (
+                totalInvoices.reduce(
+                  (sum, inv) => sum + parseFloat(inv.value.toString()),
+                  0
+                ) / totalInvoices.length
+              ).toFixed(2)
+            )
+          : 0
     };
 
     return res.json({

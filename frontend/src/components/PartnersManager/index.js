@@ -104,6 +104,13 @@ const PartnersManager = () => {
 
   const handleSubmit = async e => {
     e.preventDefault();
+
+    if (!formData.nome.trim() || !formData.email.trim()) {
+      toast.error(
+        'Por favor, preencha todos os campos obrigatórios (Nome e E-mail).'
+      );
+      return;
+    }
     try {
       setLoading(true);
 
@@ -131,6 +138,7 @@ const PartnersManager = () => {
       cpfCpnj: '',
       urlParceiro: '',
       telefone: '',
+      walletId: '',
     });
     setEditingPartner(null);
   };
@@ -142,6 +150,7 @@ const PartnersManager = () => {
       cpfCpnj: partner.cpfCpnj || '',
       urlParceiro: partner.urlParceiro || '',
       telefone: partner.telefone || '',
+      walletId: partner.walletId || '',
     });
     setEditingPartner(partner);
   };
@@ -243,6 +252,18 @@ const PartnersManager = () => {
                   placeholder="https://exemplo.com"
                 />
               </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="ID da Carteira"
+                  name="walletId"
+                  value={formData.walletId}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  size="small"
+                  placeholder="ID da Carteira"
+                />
+              </Grid>
             </Grid>
 
             <div className={classes.buttonContainer}>
@@ -286,6 +307,7 @@ const PartnersManager = () => {
                   <TableCell>Telefone</TableCell>
                   <TableCell>CNPJ/CPF</TableCell>
                   <TableCell>URL Parceiro</TableCell>
+                  <TableCell>ID da Carteira</TableCell>
                   <TableCell>Empresas</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell>Criado Em</TableCell>
@@ -304,6 +326,7 @@ const PartnersManager = () => {
                       <TableCell>{`https://zaplia.com.br/trial-teste-gratis?token=${
                         partner.urlParceiro || '-'
                       }`}</TableCell>
+                      <TableCell>{partner.walletId || '-'}</TableCell>
                       <TableCell>
                         {partner.companies && partner.companies.length > 0 ? (
                           <div>{partner.companies.length}</div>
