@@ -76,38 +76,6 @@ export default function CheckoutPage(props) {
     }
   }
 
-  async function _submitForm(values, actions) {
-    try {
-      const plan = JSON.parse(values.plan);
-      const newValues = {
-        firstName: values.firstName,
-        lastName: values.lastName,
-        address2: values.address2,
-        city: values.city,
-        state: values.state,
-        zipcode: values.zipcode,
-        country: values.country,
-        useAddressForPaymentDetails: values.useAddressForPaymentDetails,
-        nameOnCard: values.nameOnCard,
-        cardNumber: values.cardNumber,
-        cvv: values.cvv,
-        plan: values.plan,
-        price: plan.price,
-        users: plan.users,
-        connections: plan.connections,
-        invoiceId: invoiceId,
-      };
-
-      const { data } = await api.post('/subscription', newValues);
-      setDatePayment(data);
-      actions.setSubmitting(false);
-      setActiveStep(activeStep + 1);
-      toast.success(i18n.t('checkoutPage.success'));
-    } catch (err) {
-      toastError(err);
-    }
-  }
-
   const submitFormToAsaas = async values => {
     try {
       const plan = JSON.parse(values.plan);
@@ -154,6 +122,7 @@ export default function CheckoutPage(props) {
 
         if (res.data.status === 'PAID') {
           setIsPaymentSuccess(true);
+          localStorage.setItem('isOverdue', 'false');
           setTimeout(() => {
             setIsModalPaymentPixOpen(false);
             setIsPaymentSuccess(false);
