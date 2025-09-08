@@ -128,6 +128,24 @@ const Invoices = () => {
     setPageNumber(1);
   }, [searchParam]);
 
+  useEffect(async () => {
+    try {
+      const isOverdue = localStorage.getItem('isOverdue') === 'true';
+      if (!isOverdue) return;
+
+      const response = await api.get('/companies/checkIsOverdue');
+
+      const isOverdueResponse = response.data.isOverdue;
+
+      if (isOverdueResponse === false) {
+        localStorage.setItem('isOverdue', isOverdueResponse);
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Erro ao verificar vencimento do plano:', error);
+    }
+  }, []);
+
   useEffect(() => {
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
@@ -136,8 +154,6 @@ const Invoices = () => {
           const { data } = await api.get('/invoices/all', {
             params: { searchParam, pageNumber },
           });
-
-          console.log('data: ', data);
 
           dispatch({
             type: 'LOAD_INVOICES',
@@ -200,7 +216,6 @@ const Invoices = () => {
     try {
       const { data } = await api.get('/plans/list');
 
-      console.log('data:?', data);
       setAvailablePlans(data.filter(plan => plan.value > 0));
     } catch (err) {
       toastError(err);

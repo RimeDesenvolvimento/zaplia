@@ -18,6 +18,7 @@ import ShowPlanCompanyService from "../services/CompanyService/ShowPlanCompanySe
 import ListCompaniesPlanService from "../services/CompanyService/ListCompaniesPlanService";
 import UpdatePlanService from "../services/PlanService/UpdatePlanService";
 import { UpdateCompanyPlanService } from "../services/CompanyService/UpdateCompanyPlanService";
+import { CheckCompanyIsOverdueService } from "../services/CompanyService/CheckCompanyIsOverdueService";
 
 type IndexQuery = {
   searchParam: string;
@@ -50,6 +51,14 @@ type CompanyData = {
 
 type SchedulesData = {
   schedules: [];
+};
+export const checkIsOverdue = async (req: Request, res: Response) => {
+  const token = req.headers.authorization.split(" ")[1];
+  const { companyId } = verify(token, authConfig.secret) as TokenPayload;
+
+  const isOverdue = await CheckCompanyIsOverdueService(companyId);
+
+  return res.status(200).json({ isOverdue });
 };
 
 export const index = async (req: Request, res: Response): Promise<Response> => {

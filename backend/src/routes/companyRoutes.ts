@@ -6,6 +6,11 @@ import * as CompanyController from "../controllers/CompanyController";
 
 const companyRoutes = express.Router();
 
+companyRoutes.get(
+  "/companies/checkIsOverdue",
+  isAuth,
+  CompanyController.checkIsOverdue
+);
 companyRoutes.get("/companies/list", isAuth, isSuper, CompanyController.list);
 companyRoutes.get("/companies", isAuth, isSuper, CompanyController.index);
 companyRoutes.get("/companies/:id", isAuth, CompanyController.show);
