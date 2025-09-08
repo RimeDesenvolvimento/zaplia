@@ -31,6 +31,9 @@ class Partner extends Model<Partner> {
   urlParceiro: string;
 
   @Column(DataType.STRING)
+  walletId: string;
+
+  @Column(DataType.STRING)
   telefone: string;
 
   @Column(DataType.STRING)
