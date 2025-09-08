@@ -31,7 +31,15 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const { nome, email, cpfCpnj, urlParceiro, telefone, walletId } = req.body;
+    const {
+      nome,
+      email,
+      cpfCpnj,
+      urlParceiro,
+      telefone,
+      walletId,
+      porcentagemComissao
+    } = req.body;
 
     // Hashear a senha padrão
     const passwordHash = await hash("123456parceirozaplia", 8);
@@ -45,7 +53,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
       status: "Sim", // Status padrão
       password: passwordHash, // Senha hasheada
       criadoEm: new Date(),
-      walletId
+      walletId,
+      porcentagemComissao
     });
 
     return res.status(201).json(partner);
@@ -84,7 +93,15 @@ export const update = async (
 ): Promise<Response> => {
   try {
     const { id } = req.params;
-    const { nome, email, cpfCpnj, urlParceiro, telefone } = req.body;
+    const {
+      nome,
+      email,
+      cpfCpnj,
+      urlParceiro,
+      telefone,
+      walletId,
+      porcentagemComissao
+    } = req.body;
 
     const partner = await Partner.findByPk(id);
 
@@ -97,7 +114,9 @@ export const update = async (
       email,
       cpfCpnj,
       urlParceiro,
-      telefone
+      telefone,
+      walletId,
+      porcentagemComissao
     });
 
     return res.json(partner);

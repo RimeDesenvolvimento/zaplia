@@ -76,6 +76,8 @@ const PartnersManager = () => {
     cpfCpnj: '',
     urlParceiro: '',
     telefone: '',
+    walletId: '',
+    porcentagemComissao: 40,
   });
 
   useEffect(() => {
@@ -139,6 +141,7 @@ const PartnersManager = () => {
       urlParceiro: '',
       telefone: '',
       walletId: '',
+      porcentagemComissao: 40,
     });
     setEditingPartner(null);
   };
@@ -151,6 +154,7 @@ const PartnersManager = () => {
       urlParceiro: partner.urlParceiro || '',
       telefone: partner.telefone || '',
       walletId: partner.walletId || '',
+      porcentagemComissao: partner.porcentagemComissao || 40,
     });
     setEditingPartner(partner);
   };
@@ -240,6 +244,31 @@ const PartnersManager = () => {
                 />
               </Grid>
 
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="ID da Carteira"
+                  name="walletId"
+                  value={formData.walletId}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  size="small"
+                  placeholder="ID da Carteira"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Porcentagem de Comissão"
+                  name="porcentagemComissao"
+                  value={formData.porcentagemComissao}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  size="small"
+                  type="number"
+                  placeholder="Porcentagem de Comissão"
+                />
+              </Grid>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
@@ -250,18 +279,6 @@ const PartnersManager = () => {
                   variant="outlined"
                   size="small"
                   placeholder="https://exemplo.com"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="ID da Carteira"
-                  name="walletId"
-                  value={formData.walletId}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                  size="small"
-                  placeholder="ID da Carteira"
                 />
               </Grid>
             </Grid>
@@ -307,6 +324,7 @@ const PartnersManager = () => {
                   <TableCell>Telefone</TableCell>
                   <TableCell>CNPJ/CPF</TableCell>
                   <TableCell>URL Parceiro</TableCell>
+                  <TableCell>Porcentagem de Comissão</TableCell>
                   <TableCell>ID da Carteira</TableCell>
                   <TableCell>Empresas</TableCell>
                   <TableCell>Status</TableCell>
@@ -326,6 +344,9 @@ const PartnersManager = () => {
                       <TableCell>{`https://zaplia.com.br/trial-teste-gratis?token=${
                         partner.urlParceiro || '-'
                       }`}</TableCell>
+                      <TableCell>
+                        {partner.porcentagemComissao || '-'}
+                      </TableCell>
                       <TableCell>{partner.walletId || '-'}</TableCell>
                       <TableCell>
                         {partner.companies && partner.companies.length > 0 ? (
