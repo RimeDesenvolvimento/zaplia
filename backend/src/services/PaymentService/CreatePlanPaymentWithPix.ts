@@ -5,6 +5,7 @@ import Subscriptions from "../../models/Subscriptions";
 import User from "../../models/User";
 import { createCharge } from "../AsaasService/CreateCharge";
 import { getPixCode } from "../AsaasService/GetPixCode";
+import { Split } from "../AsaasService/interfaces";
 
 class CreatePlanPaymentWithPix {
   constructor(private userId: number, private planId: number) {}
@@ -22,6 +23,21 @@ class CreatePlanPaymentWithPix {
       throw new Error("Company not found for user");
     }
 
+    const partner = await company.$get("partner");
+
+    let splits: Split[] = [];
+
+    console.log("partner: ", partner.walletId);
+
+    if (partner && partner.walletId) {
+      splits = [
+        {
+          walletId: partner.walletId,
+          percentualValue: partner.porcentagemComissao
+        }
+      ];
+    }
+
     const plan = await Plan.findByPk(this.planId);
 
     const { id } = await createCharge({
@@ -32,7 +48,8 @@ class CreatePlanPaymentWithPix {
         .split("T")[0],
       value: plan.value,
       description: "Criação de pagamento de plano",
-      externalReference: company.id.toString()
+      externalReference: company.id.toString(),
+      ...(splits.length > 0 && { splits: splits })
     }).catch(error => {
       console.error("[ERROR_CREATE_CHARGE]", error.response.data.errors);
       throw new Error("Error creating charge");

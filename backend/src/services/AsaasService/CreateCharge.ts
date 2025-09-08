@@ -1,17 +1,23 @@
-
 import { AsaasApiInstance } from "./CreateCustomer";
-import { CreditCard, CreditCardHolderInfo, Discount, Fine, Interest, Split } from "./interfaces";
+import {
+  CreditCard,
+  CreditCardHolderInfo,
+  Discount,
+  Fine,
+  Interest,
+  Split
+} from "./interfaces";
 
 interface CreatePaymentRequest {
-  customer: string; 
-  billingType: 'BOLETO' | 'CREDIT_CARD' | 'PIX' | 'UNDEFINED';
-  value?: number; 
-  dueDate: string; 
+  customer: string;
+  billingType: "BOLETO" | "CREDIT_CARD" | "PIX" | "UNDEFINED";
+  value?: number;
+  dueDate: string;
   description?: string;
   externalReference?: string;
-  installmentCount?: number; 
+  installmentCount?: number;
   installmentValue?: number;
-  totalValue?: number; 
+  totalValue?: number;
   discount?: Discount;
   fine?: Fine;
   interest?: Interest;
@@ -19,10 +25,10 @@ interface CreatePaymentRequest {
   creditCardHolderInfo?: CreditCardHolderInfo;
   creditCardToken?: string;
   remoteIp?: string;
-  authorizeOnly?: boolean; 
+  authorizeOnly?: boolean;
   postalService?: boolean;
   callback?: string;
-  split?: Split[];
+  splits?: Split[];
 }
 
 interface PaymentResponse {
@@ -39,7 +45,15 @@ interface PaymentResponse {
   description: string | null;
   billingType: "BOLETO" | "CREDIT_CARD" | "PIX" | "UNDEFINED";
   pixTransaction: string | null;
-  status: "PENDING" | "RECEIVED" | "CONFIRMED" | "OVERDUE" | "REFUNDED" | "RECEIVED_IN_CASH" | "CHARGED_BACK" | "FAILED";
+  status:
+    | "PENDING"
+    | "RECEIVED"
+    | "CONFIRMED"
+    | "OVERDUE"
+    | "REFUNDED"
+    | "RECEIVED_IN_CASH"
+    | "CHARGED_BACK"
+    | "FAILED";
   dueDate: string;
   originalDueDate: string;
   paymentDate: string | null;
@@ -78,12 +92,10 @@ interface PaymentResponse {
   refunds: unknown | null;
 }
 
-
-export async function createCharge(data: CreatePaymentRequest): Promise<PaymentResponse> {
-  const res = await AsaasApiInstance.post("/payments", 
-    JSON.stringify(data),
-  );
+export async function createCharge(
+  data: CreatePaymentRequest
+): Promise<PaymentResponse> {
+  const res = await AsaasApiInstance.post("/payments", JSON.stringify(data));
 
   return res.data;
 }
-

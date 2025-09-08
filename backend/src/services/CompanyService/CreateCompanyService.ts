@@ -66,6 +66,9 @@ const CreateCompanyService = async (
 
   // Buscar parceiro pelo token se fornecido
   let partnerId = null;
+
+  console.log("partnerToken:", partnerToken);
+
   if (partnerToken) {
     const partner = await Partner.findOne({
       where: { urlParceiro: partnerToken }
