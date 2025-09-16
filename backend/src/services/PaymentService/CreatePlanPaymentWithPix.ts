@@ -38,6 +38,8 @@ class CreatePlanPaymentWithPix {
 
     const plan = await Plan.findByPk(this.planId);
 
+    const planValueStr = Number(plan.value).toFixed(2);
+
     const { id } = await createCharge({
       billingType: "PIX",
       customer: user.asaasId,
@@ -69,7 +71,7 @@ class CreatePlanPaymentWithPix {
       lastInvoiceUrl: null,
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       lastPlanChange: new Date(),
-      userPriceCents: plan.value * 100
+      userPriceCents: Math.round(Number(planValueStr) * 100)
     });
 
     const existingInvoice = await Invoices.findOne({
