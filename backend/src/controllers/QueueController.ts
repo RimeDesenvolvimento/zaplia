@@ -26,10 +26,21 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 };
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
-  const { name, color, greetingMessage, outOfHoursMessage, schedules, orderQueue, integrationId, promptId } =
-    req.body;
+  const {
+    name,
+    color,
+    greetingMessage,
+    outOfHoursMessage,
+    schedules,
+    orderQueue,
+    integrationId,
+    promptId
+  } = req.body;
   const { companyId } = req.user;
-  console.log("queue", integrationId, promptId)
+  console.log("queue", integrationId, promptId);
+
+  console.log("to aqui: ", name);
+
   const queue = await CreateQueueService({
     name,
     color,
@@ -66,18 +77,30 @@ export const update = async (
 ): Promise<Response> => {
   const { queueId } = req.params;
   const { companyId } = req.user;
-  const { name, color, greetingMessage, outOfHoursMessage, schedules, orderQueue, integrationId, promptId } =
-    req.body;
-  const queue = await UpdateQueueService(queueId, {
+  const {
     name,
     color,
     greetingMessage,
     outOfHoursMessage,
     schedules,
-    orderQueue: orderQueue === "" ? null : orderQueue,
-    integrationId: integrationId === "" ? null : integrationId,
-    promptId: promptId === "" ? null : promptId
-  }, companyId);
+    orderQueue,
+    integrationId,
+    promptId
+  } = req.body;
+  const queue = await UpdateQueueService(
+    queueId,
+    {
+      name,
+      color,
+      greetingMessage,
+      outOfHoursMessage,
+      schedules,
+      orderQueue: orderQueue === "" ? null : orderQueue,
+      integrationId: integrationId === "" ? null : integrationId,
+      promptId: promptId === "" ? null : promptId
+    },
+    companyId
+  );
 
   const io = getIO();
   io.to(`company-${companyId}-mainchannel`).emit(`company-${companyId}-queue`, {
