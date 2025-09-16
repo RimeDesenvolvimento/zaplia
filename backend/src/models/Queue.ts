@@ -13,7 +13,8 @@ import {
   ForeignKey,
   HasMany,
   DataType,
-  Default
+  Default,
+  Index
 } from "sequelize-typescript";
 import User from "./User";
 import UserQueue from "./UserQueue";
@@ -30,74 +31,75 @@ class Queue extends Model<Queue> {
   @PrimaryKey
   @AutoIncrement
   @Column
-  id: number;
+  id!: number;
 
   @AllowNull(false)
-  @Unique
+  @Index({ name: "queue_name_company_unique", unique: true })
   @Column
-  name: string;
+  name!: string;
 
   @AllowNull(false)
-  @Unique
+  @Index({ name: "queue_color_company_unique", unique: true })
   @Column
-  color: string;
+  color!: string;
 
   @Default("")
   @Column
-  greetingMessage: string;
+  greetingMessage!: string;
 
   @Default("")
   @Column
-  outOfHoursMessage: string;
+  outOfHoursMessage!: string;
 
   @Column({
     type: DataType.JSONB
   })
-  schedules: [];
+  schedules!: [];
 
   @CreatedAt
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdatedAt
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @ForeignKey(() => Company)
+  @Index({ name: "queue_name_company_unique", unique: true })
+  @Index({ name: "queue_color_company_unique", unique: true })
   @Column
-  companyId: number;
+  companyId!: number;
 
   @BelongsTo(() => Company)
-  company: Company;
+  company!: Company;
 
   @BelongsToMany(() => Whatsapp, () => WhatsappQueue)
-  whatsapps: Array<Whatsapp & { WhatsappQueue: WhatsappQueue }>;
+  whatsapps!: Array<Whatsapp & { WhatsappQueue: WhatsappQueue }>;
 
   @BelongsToMany(() => User, () => UserQueue)
-  users: Array<User & { UserQueue: UserQueue }>;
+  users!: Array<User & { UserQueue: UserQueue }>;
 
   @HasMany(() => QueueOption, {
     onDelete: "DELETE",
     onUpdate: "DELETE",
     hooks: true
   })
-  options: QueueOption[];
+  options!: QueueOption[];
 
   @Column
-  orderQueue: number;
+  orderQueue!: number;
 
-  
   @ForeignKey(() => QueueIntegrations)
   @Column
-  integrationId: number;
+  integrationId!: number;
 
   @BelongsTo(() => QueueIntegrations)
-  queueIntegrations: QueueIntegrations;
+  queueIntegrations!: QueueIntegrations;
 
   @ForeignKey(() => Prompt)
   @Column
-  promptId: number;
+  promptId!: number;
 
   @BelongsTo(() => Prompt)
-  prompt: Prompt;
+  prompt!: Prompt;
 }
 
 export default Queue;
