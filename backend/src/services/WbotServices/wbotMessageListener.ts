@@ -67,7 +67,7 @@ import { IConnections, INodes } from "../WebhookService/DispatchWebHookService";
 import { ActionsWebhookService } from "../WebhookService/ActionsWebhookService";
 import { WebhookModel } from "../../models/Webhook";
 
-import {differenceInMilliseconds} from "date-fns";
+import { differenceInMilliseconds } from "date-fns";
 import Whatsapp from "../../models/Whatsapp";
 
 const request = require("request");
@@ -108,11 +108,11 @@ const getTypeMessage = (msg: proto.IWebMessageInfo): string => {
 };
 
 function hasCaption(title: string, fileName: string) {
-  if(!title || !fileName) return false;
+  if (!title || !fileName) return false;
 
-  const fileNameExtension = fileName.substring(fileName.lastIndexOf('.') + 1);
+  const fileNameExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
 
-  return !fileName.includes(`${title}.${fileNameExtension}`)
+  return !fileName.includes(`${title}.${fileNameExtension}`);
 }
 
 export function validaCpfCnpj(val) {
@@ -646,8 +646,6 @@ export const keepOnlySpecifiedChars = (str: string) => {
   return str.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôûÂÊÎÔÛãõÃÕçÇ!?.,;:\s]/g, "");
 };
 
-
-
 const handleOpenAi = async (
   msg: proto.IWebMessageInfo,
   wbot: Session,
@@ -657,7 +655,6 @@ const handleOpenAi = async (
   ticketTraking: TicketTraking = null,
   openAiSettings = null
 ): Promise<void> => {
-
   // REGRA PARA DESABILITAR O BOT PARA ALGUM CONTATO
   if (contact.disableBot) {
     return;
@@ -669,8 +666,7 @@ const handleOpenAi = async (
 
   let { prompt } = await ShowWhatsAppService(wbot.id, ticket.companyId);
 
-  if( openAiSettings )
-    prompt = openAiSettings;
+  if (openAiSettings) prompt = openAiSettings;
 
   if (!prompt && !isNil(ticket?.queue?.prompt)) {
     prompt = ticket.queue.prompt;
@@ -706,7 +702,7 @@ const handleOpenAi = async (
 
   const messages = await Message.findAll({
     where: { ticketId: ticket.id },
-    order: [["createdAt", "DESC"]],
+    order: [["createdAt", "ASC"]],
     limit: maxMessages
   });
 
@@ -753,10 +749,12 @@ const handleOpenAi = async (
         .trim();
     }
 
-    const sentMessage = await wbot.sendMessage(msg.key.remoteJid!, {
-      text: response!
-    });
-    await verifyMessage(sentMessage!, ticket, contact);
+    if (response) {
+      const sentMessage = await wbot.sendMessage(msg.key.remoteJid!, {
+        text: response
+      });
+      await verifyMessage(sentMessage!, ticket, contact);
+    }
 
     /*
     if (prompt.voice === "texto") {
@@ -893,7 +891,7 @@ export const verifyMediaMessage = async (
   try {
     await writeFileAsync(
       join(__dirname, "..", "..", "..", "public", media.filename),
-      Buffer.from(media.data, 'base64')
+      Buffer.from(media.data, "base64")
     );
   } catch (err) {
     Sentry.captureException(err);
@@ -903,7 +901,11 @@ export const verifyMediaMessage = async (
   const body = getBodyMessage(msg);
 
   const hasCap = hasCaption(body, media.filename);
-  const bodyMessage = body ? hasCap ? formatBody(body, ticket.contact) : "-" : "-";
+  const bodyMessage = body
+    ? hasCap
+      ? formatBody(body, ticket.contact)
+      : "-"
+    : "-";
 
   const messageData = {
     id: msg.key.id,
@@ -919,7 +921,7 @@ export const verifyMediaMessage = async (
     remoteJid: msg.key.remoteJid,
     participant: msg.key.participant,
     dataJson: JSON.stringify(msg),
-    ticketTrakingId: ticketTraking?.id,
+    ticketTrakingId: ticketTraking?.id
   };
 
   await ticket.update({
@@ -1083,7 +1085,6 @@ const verifyQueue = async (
   contact: Contact,
   mediaSent?: Message | undefined
 ) => {
-
   const companyId = ticket.companyId;
 
   const { queues, greetingMessage, maxUseBotQueues, timeUseBotQueues } =
@@ -1781,7 +1782,6 @@ const flowbuilderIntegration = async (
   */
 
   if (!msg.key.fromMe && ticket.status === "closed") {
-
     console.log("===== CHANGE =====");
     await ticket.update({ status: "pending" });
     await ticket.reload({
@@ -1825,7 +1825,8 @@ const flowbuilderIntegration = async (
   // Welcome flow
   if (
     !isFirstMsg &&
-    listPhrase.filter(item => item.phrase.toLowerCase() === body.toLowerCase()).length === 0
+    listPhrase.filter(item => item.phrase.toLowerCase() === body.toLowerCase())
+      .length === 0
   ) {
     const flow = await FlowBuilderModel.findOne({
       where: {
@@ -1898,7 +1899,8 @@ const flowbuilderIntegration = async (
 
   // Flow with not found phrase
   if (
-    listPhrase.filter(item => item.phrase.toLowerCase() === body.toLowerCase()).length === 0 &&
+    listPhrase.filter(item => item.phrase.toLowerCase() === body.toLowerCase())
+      .length === 0 &&
     diferencaEmMilissegundos >= seisHorasEmMilissegundos &&
     isFirstMsg
   ) {
@@ -1939,9 +1941,13 @@ const flowbuilderIntegration = async (
   }
 
   // Campaign fluxo
-  if (listPhrase.filter(item => item.phrase.toLowerCase() === body.toLowerCase()).length !== 0) {
-
-    const flowDispar = listPhrase.filter(item => item.phrase.toLowerCase() === body.toLowerCase())[0];
+  if (
+    listPhrase.filter(item => item.phrase.toLowerCase() === body.toLowerCase())
+      .length !== 0
+  ) {
+    const flowDispar = listPhrase.filter(
+      item => item.phrase.toLowerCase() === body.toLowerCase()
+    )[0];
     const flow = await FlowBuilderModel.findOne({
       where: {
         id: flowDispar.flowId
@@ -2119,7 +2125,7 @@ export const handleMessageIntegration = async (
   isMenu: boolean = null,
   whatsapp: Whatsapp = null,
   contact: Contact = null,
-  isFirstMsg: Ticket | null = null,
+  isFirstMsg: Ticket | null = null
 ): Promise<void> => {
   const msgType = getTypeMessage(msg);
 
@@ -2149,9 +2155,8 @@ export const handleMessageIntegration = async (
     console.log("entrou no typebot");
     // await typebots(ticket, msg, wbot, queueIntegration);
     await typebotListener({ ticket, msg, wbot, typebot: queueIntegration });
-  } else if(queueIntegration.type === "flowbuilder") {
+  } else if (queueIntegration.type === "flowbuilder") {
     if (!isMenu) {
-
       await flowbuilderIntegration(
         msg,
         wbot,
@@ -2162,7 +2167,6 @@ export const handleMessageIntegration = async (
         isFirstMsg
       );
     } else {
-
       if (
         !isNaN(parseInt(ticket.lastMessage)) &&
         ticket.status !== "open" &&
@@ -2239,7 +2243,6 @@ const flowBuilderQueue = async (
   //const integrations = await ShowQueueIntegrationService(whatsapp.integrationId, companyId);
   //await handleMessageIntegration(msg, wbot, integrations, ticket, companyId, true, whatsapp);
 };
-
 
 const handleMessage = async (
   msg: proto.IWebMessageInfo,
@@ -2362,7 +2365,6 @@ const handleMessage = async (
 
     try {
       if (!msg.key.fromMe) {
-
         if (ticketTraking !== null && verifyRating(ticketTraking)) {
           handleRating(parseFloat(bodyMessage), ticket, ticketTraking);
           return;
@@ -2601,7 +2603,7 @@ const handleMessage = async (
         contact,
         mediaSent,
         ticketTraking,
-        openAiSettings,
+        openAiSettings
       );
 
       return;
@@ -2628,7 +2630,6 @@ const handleMessage = async (
       !isNil(whatsapp.integrationId) &&
       !ticket.useIntegration
     ) {
-
       const integrations = await ShowQueueIntegrationService(
         whatsapp.integrationId,
         companyId
@@ -2729,7 +2730,6 @@ const handleMessage = async (
       !isNil(whatsapp.integrationId) &&
       !ticket.useIntegration
     ) {
-
       const integrations = await ShowQueueIntegrationService(
         whatsapp.integrationId,
         companyId
@@ -2860,7 +2860,6 @@ const handleMessage = async (
         await handleChartbot(ticket, msg, wbot, dontReadTheFirstQuestion);
       }
     }
-
   } catch (err) {
     console.log(err);
     Sentry.captureException(err);
@@ -2944,7 +2943,7 @@ const filterMessages = (msg: WAMessage): boolean => {
       WAMessageStubType.E2E_DEVICE_CHANGED,
       WAMessageStubType.E2E_IDENTITY_CHANGED,
       WAMessageStubType.CIPHERTEXT
-    ].includes(msg.messageStubType as WAMessageStubType)
+    ].includes(msg.messageStubType)
   )
     return false;
 

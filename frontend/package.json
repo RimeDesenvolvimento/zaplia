@@ -77,6 +77,7 @@
     "start": "NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
     "build": "NODE_OPTIONS=--openssl-legacy-provider GENERATE_SOURCEMAP=false react-scripts build",
     "builddev": "react-scripts build",
+    "start:win": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
