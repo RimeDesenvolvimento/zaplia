@@ -22,7 +22,7 @@ export const openWhatsApp = (phoneNumber, message) => {
   }
 };
 
-export const ZAPLIA_WHATSAPP = process.env.ZAPLIA_WHATSAPP;
+export const ZAPLIA_WHATSAPP = process.env.REACT_APP_ZAPLIA_WHATSAPP;
 
 if (!ZAPLIA_WHATSAPP) {
   throw new Error('ZAPLIA_WHATSAPP is not defined in environment variables');
