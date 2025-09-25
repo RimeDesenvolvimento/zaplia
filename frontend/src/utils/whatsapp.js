@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 export const openWhatsApp = (phoneNumber, message) => {
   const isMobile =
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -18,4 +22,8 @@ export const openWhatsApp = (phoneNumber, message) => {
   }
 };
 
-export const ZAPLIA_WHATSAPP = '5511958883133';
+export const ZAPLIA_WHATSAPP = process.env.ZAPLIA_WHATSAPP;
+
+if (!ZAPLIA_WHATSAPP) {
+  throw new Error('ZAPLIA_WHATSAPP is not defined in environment variables');
+}
