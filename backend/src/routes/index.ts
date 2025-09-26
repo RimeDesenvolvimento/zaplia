@@ -34,11 +34,16 @@ import forgotsRoutes from "./forgotPasswordRoutes";
 import flowDefaultRoutes from "./flowDefaultRoutes";
 import flowBuilder from "./flowBuilderRoutes";
 import flowCampaignRoutes from "./flowCampaignRoutes";
+import paymentRoutes from "./PaymentRoutes";
+import partnerRoutes from "./partnerRoutes";
+import webhookAsaasRoutes from "../services/AsaasWebhook/webhook";
 const routes = Router();
 
 routes.use(userRoutes);
 routes.use("/auth", authRoutes);
+routes.use(webhookAsaasRoutes)
 routes.use(settingRoutes);
+routes.use(paymentRoutes)
 routes.use(contactRoutes);
 routes.use(ticketRoutes);
 routes.use(whatsappRoutes);
@@ -72,5 +77,6 @@ routes.use(forgotsRoutes);
 routes.use(flowDefaultRoutes);
 routes.use(flowBuilder)
 routes.use(flowCampaignRoutes)
+routes.use(partnerRoutes);
 
 export default routes;

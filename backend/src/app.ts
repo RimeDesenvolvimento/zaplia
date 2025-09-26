@@ -12,7 +12,7 @@ import AppError from "./errors/AppError";
 import routes from "./routes";
 import { logger } from "./utils/logger";
 import { messageQueue, sendScheduledMessages } from "./queues";
-import bodyParser from 'body-parser';
+import bodyParser from "body-parser";
 
 Sentry.init({ dsn: process.env.SENTRY_DSN });
 
@@ -23,13 +23,18 @@ app.set("queues", {
   sendScheduledMessages
 });
 
-const bodyparser = require('body-parser');
-app.use(bodyParser.json({ limit: '10mb' }));
+const bodyparser = require("body-parser");
+app.use(bodyParser.json({ limit: "10mb" }));
 
 app.use(
   cors({
     credentials: true,
-    origin: process.env.FRONTEND_URL
+    origin: [
+      "https://parceiro.zaplia.com.br",
+      "https://zaplia.com.br",
+      process.env.FRONTEND_URL,
+      "http://localhost:8080"
+    ]
   })
 );
 app.use(cookieParser());
@@ -41,7 +46,6 @@ app.use(routes);
 app.use(Sentry.Handlers.errorHandler());
 
 app.use(async (err: Error, req: Request, res: Response, _: NextFunction) => {
-
   if (err instanceof AppError) {
     logger.warn(err);
     return res.status(err.statusCode).json({ error: err.message });

@@ -165,11 +165,12 @@ const useAuth = () => {
       var before = moment(moment().format()).isBefore(dueDate);
       var dias = moment.duration(diff).asDays();
 
-      if (before === true) {
+if (before === true) {
         localStorage.setItem("token", JSON.stringify(data.token));
         localStorage.setItem("companyId", companyId);
         localStorage.setItem("userId", id);
         localStorage.setItem("companyDueDate", vencimento);
+        localStorage.setItem("isOverdue", false)
         api.defaults.headers.Authorization = `Bearer ${data.token}`;
         setUser(data.user);
         setIsAuth(true);
@@ -184,8 +185,23 @@ const useAuth = () => {
         history.push("/tickets");
         setLoading(false);
       } else {
-        toastError(`Opss! Sua assinatura venceu ${vencimento}.
-Entre em contato com o Suporte para mais informações! `);
+        localStorage.setItem("token", JSON.stringify(data.token));
+        localStorage.setItem("companyId", companyId);
+        localStorage.setItem("userId", id);
+        localStorage.setItem("companyDueDate", vencimento);
+
+         api.defaults.headers.Authorization = `Bearer ${data.token}`;
+        setUser(data.user);
+        setIsAuth(true);
+        localStorage.setItem("isOverdue", true)
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+
+        history.push("/financeiro");
+
+         toastError(`Opss! Sua assinatura venceu ${vencimento}.
+ Entre em contato com o Suporte para mais informações! `);
         setLoading(false);
       }
 

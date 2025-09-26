@@ -21,7 +21,8 @@ type IndexQuery = {
 };
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
-  const { contactId, userId, pageNumber, searchParam } = req.query as IndexQuery;
+  const { contactId, userId, pageNumber, searchParam } =
+    req.query as IndexQuery;
   const { companyId } = req.user;
 
   const { schedules, count, hasMore } = await ListService({
@@ -36,12 +37,7 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 };
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
-  const {
-    body,
-    sendAt,
-    contactId,
-    userId
-  } = req.body;
+  const { body, sendAt, contactId, userId } = req.body;
   const { companyId } = req.user;
 
   const schedule = await CreateService({
@@ -82,7 +78,11 @@ export const update = async (
   const scheduleData = req.body;
   const { companyId } = req.user;
 
-  const schedule = await UpdateService({ scheduleData, id: scheduleId, companyId });
+  const schedule = await UpdateService({
+    scheduleData,
+    id: scheduleId,
+    companyId
+  });
 
   const io = getIO();
   io.to(`company-${companyId}-mainchannel`).emit("schedule", {
@@ -126,8 +126,8 @@ export const mediaUpload = async (
 
     await schedule.save();
     return res.send({ mensagem: "Arquivo Anexado" });
-    } catch (err: any) {
-      throw new AppError(err.message);
+  } catch (err: any) {
+    throw new AppError(err.message);
   }
 };
 
@@ -148,7 +148,7 @@ export const deleteMedia = async (
     schedule.mediaName = null;
     await schedule.save();
     return res.send({ mensagem: "Arquivo Excluído" });
-    } catch (err: any) {
-      throw new AppError(err.message);
+  } catch (err: any) {
+    throw new AppError(err.message);
   }
 };

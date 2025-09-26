@@ -274,6 +274,20 @@ const MainListItems = (props) => {
     handleLogout();
   };
 
+const isOverdue = localStorage.getItem("isOverdue");
+
+if (isOverdue === "true") {
+    return (
+      <div onClick={drawerClose}>
+        <ListItemLink
+          to="/financeiro"
+          primary={i18n.t("mainDrawer.listItems.financeiro")}
+          icon={<LocalAtmIcon />}
+        />
+      </div>
+    );
+  }
+
   return (
     <div onClick={drawerClose}>
       <Can
