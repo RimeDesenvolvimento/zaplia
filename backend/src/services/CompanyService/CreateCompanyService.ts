@@ -81,6 +81,17 @@ const CreateCompanyService = async (
       }
     }
 
+    if (email) {
+      const companyWithSameEmail = await Company.findOne({
+        where: { email },
+        transaction
+      });
+
+      if (companyWithSameEmail) {
+        throw new AppError("ERR_COMPANY_EMAIL_ALREADY_EXISTS");
+      }
+    }
+
     const company = await Company.create(
       {
         name,
